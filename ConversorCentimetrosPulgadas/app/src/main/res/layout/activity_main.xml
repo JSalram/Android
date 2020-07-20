@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/textcm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="139dp"
+        android:layout_marginEnd="35dp"
+        android:layout_marginBottom="77dp"
+        android:text="Centímetros"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/centimetrosPulgadas"
+        app:layout_constraintEnd_toStartOf="@+id/cm"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/pulgadasCentimetros"
+        android:layout_width="146dp"
+        android:layout_height="82dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="51dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginBottom="71dp"
+        android:text="pulgadas a centímetros"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/inches"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/centimetrosPulgadas"
+        app:layout_constraintTop_toBottomOf="@+id/cm" />
+
+    <Button
+        android:id="@+id/centimetrosPulgadas"
+        android:layout_width="146dp"
+        android:layout_height="82dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="51dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="20dp"
+        android:text="Centímetros a pulgadas"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/textpulgadas"
+        app:layout_constraintEnd_toStartOf="@+id/pulgadasCentimetros"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textcm" />
+
+    <EditText
+        android:id="@+id/cm"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="126dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="76dp"
+        android:ems="10"
+        android:inputType="numberDecimal"
+        app:layout_constraintBottom_toTopOf="@+id/pulgadasCentimetros"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/inches"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="272dp"
+        android:ems="10"
+        android:inputType="numberDecimal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textpulgadas"
+        app:layout_constraintTop_toBottomOf="@+id/pulgadasCentimetros" />
+
+    <TextView
+        android:id="@+id/textpulgadas"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="97dp"
+        android:layout_marginBottom="272dp"
+        android:text="Pulgadas"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/inches"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/centimetrosPulgadas"
+        app:layout_constraintVertical_bias="0.0" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

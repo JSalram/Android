@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Conversor</string>
+    <string-array name="monedas">
+        <item>Euro</item>
+        <item>Dólar</item>
+        <item>Yen</item>
+        <item>Libra</item>
+        <item>Won</item>
+    </string-array>
+
+</resources>

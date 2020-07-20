@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Lista Compra</string>
+    <string name="add">Añadir</string>
+    <string name="del">Eliminar último producto</string>
+</resources>

@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Bien-Mal</string>
+    <string name="titulo">
+        <font color='green'>Bien</font>
+         <font color='black'>-</font>
+        <font color='red'>Mal</font>
+    </string>
+    <string name="desc">Contesta las preguntas \"correctamente\"</string>
+    <string name="nueva">Nueva Frase</string>
+    <string name="comenzar">Comenzar</string>
+    <string name="continuar">Continuar</string>
+    <string name="add">+</string>
+    <string name="tiempo">¡TIEMPO!</string>
+    <string name="info">i</string>
+</resources>

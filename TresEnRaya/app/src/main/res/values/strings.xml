@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Tres en Raya</string>
+    <string name="reiniciar">Reiniciar</string>
+    <string name="p2">PvP</string>
+    <string name="ganaP1">¡P1 GANA!</string>
+    <string name="ganaP2">¡P2 GANA!</string>
+    <string name="ganaCPU">¡CPU GANA!</string>
+    <string name="raya3">Tres en Raya</string>
+    <string name="empate">¡EMPATE!</string>
+    <string name="nivel">Nivel de dificultad:</string>
+    <string name="facil">Fácil</string>
+    <string name="medio">Intermedio</string>
+    <string name="dificil">Difícil</string>
+    <string name="cpuRestart">CPU: 0</string>
+    <string name="p2Restart">P2: 0</string>
+</resources>
