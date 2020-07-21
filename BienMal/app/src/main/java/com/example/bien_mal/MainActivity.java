@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
@@ -28,7 +27,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -68,6 +66,7 @@ public class MainActivity extends AppCompatActivity
     private LinearLayout ll;
     private ImageButton volver;
     private ImageButton borrar;
+    private ImageButton reiniciar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -95,7 +94,7 @@ public class MainActivity extends AppCompatActivity
             {
                 if (annadiendo)
                 {
-                    reiniciar();
+                    volver();
                     if (view != null)
                     {
                         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -105,9 +104,16 @@ public class MainActivity extends AppCompatActivity
                 }
                 else
                 {
-                    juegoComenzado = false;
-                    reiniciar();
+                    volver();
                 }
+            }
+        });
+        reiniciar.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                reiniciar();
             }
         });
 
@@ -167,6 +173,7 @@ public class MainActivity extends AppCompatActivity
         ll = findViewById(R.id.ll);
         volver = findViewById(R.id.volver);
         borrar = findViewById(R.id.borrar);
+        reiniciar = findViewById(R.id.reiniciar);
 
         frases = new Frases();
         frasesPersonalizadas = new LinkedList<>();
@@ -176,23 +183,16 @@ public class MainActivity extends AppCompatActivity
         leeFichero(getApplicationContext());
         frases.annadeLista(frasesPersonalizadas);
     }
-    public void reiniciar()
+    public void volver()
     {
-
-        if (frasesPersonalizadas.isEmpty())
+        if (juegoComenzado)
         {
-            jugar.setText(R.string.comenzar);
+            jugar.setText(R.string.continuar);
+            reiniciar.setVisibility(View.VISIBLE);
         }
         else
         {
-            if (juegoComenzado)
-            {
-                jugar.setText(R.string.continuar);
-            }
-            else
-            {
-                jugar.setText(R.string.comenzar);
-            }
+            jugar.setText(R.string.comenzar);
         }
 
         if (!juegoComenzado)
@@ -200,6 +200,7 @@ public class MainActivity extends AppCompatActivity
             frases = new Frases();
             frases.annadeLista(frasesPersonalizadas);
         }
+
         frase.setVisibility(View.INVISIBLE);
         frase.setText("");
 
@@ -221,6 +222,16 @@ public class MainActivity extends AppCompatActivity
         jugar.setClickable(true);
         annadiendo = false;
     }
+    public void reiniciar()
+    {
+        frases = new Frases();
+        frases.annadeLista(frasesPersonalizadas);
+        reiniciar.setVisibility(View.GONE);
+        juegoComenzado = false;
+
+        String reiniciaLista = "Lista de frases reiniciada";
+        Toast.makeText(this, reiniciaLista, Toast.LENGTH_LONG).show();
+    }
     public void annadir()
     {
         frase.setVisibility(View.VISIBLE);
@@ -233,6 +244,7 @@ public class MainActivity extends AppCompatActivity
         tiempo.setVisibility(View.INVISIBLE);
         editarFrase.setVisibility(View.VISIBLE);
         info.setVisibility(View.GONE);
+        reiniciar.setVisibility(View.GONE);
         scrollView.setVisibility(View.VISIBLE);
 
         jugar.setClickable(false);
@@ -291,7 +303,8 @@ public class MainActivity extends AppCompatActivity
         bienMal.setText("");
         tiempo.setVisibility(View.INVISIBLE);
         info.setVisibility(View.GONE);
-        jugar.setText(R.string.nueva);
+        reiniciar.setVisibility(View.GONE);
+        jugar.setText(R.string.continuar);
         jugar.setClickable(false);
         volver.setClickable(false);
         annadir.setClickable(false);
@@ -300,7 +313,7 @@ public class MainActivity extends AppCompatActivity
 
         if (frases.listaVacia())
         {
-            frases.rellenaLista();
+            frases = new Frases();
             frases.annadeLista(frasesPersonalizadas);
         }
 
@@ -314,6 +327,7 @@ public class MainActivity extends AppCompatActivity
     public void contador()
     {
         Handler handler = new Handler();
+        int ms = 2250 + ((frase.getText().toString().length() / 10)*250);
         handler.postDelayed(new Runnable() {
             public void run() {
                 String bienMal = frases.bienMal();
@@ -354,7 +368,7 @@ public class MainActivity extends AppCompatActivity
 
                 }.start();
             }
-        }, 2000);
+        }, ms);
     }
     public void info()
     {
@@ -508,8 +522,15 @@ public class MainActivity extends AppCompatActivity
     {
         if (annadiendo)
         {
-            reiniciar();
+            volver();
             escibeFichero(getApplicationContext());
+        }
+        else
+        {
+            if (juegoComenzado && jugar.isClickable())
+            {
+                volver();
+            }
         }
     }
 }

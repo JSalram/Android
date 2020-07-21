@@ -37,7 +37,8 @@ public class Frases
         frases.add("La hija del hermano de tu madre es tu...");
         frases.add("¿Cuántos segundos tienen 2 minutos?");
         frases.add("¿Cuántos minutos tienen 60 segundos?");
-        frases.add("¿Cuántos años tienen 366 días?");
+        frases.add("¿Cuántos años hay en 365 días?");
+        frases.add("¿Cómo se llama el año que tiene 366 días?");
         frases.add("La guitarra es un instrumento de...");
         frases.add("La trompeta es un instrumento de...");
         frases.add("El piano es un instrumento de...");
@@ -47,7 +48,7 @@ public class Frases
         frases.add("Lo que pasa en Las Vegas se queda en...");
         frases.add("¿De qué color era el caballo blanco de Santiago?");
         frases.add("¿De qué color es el traje de Papá Noel?");
-        frases.add("¿De qué color son las hojas de un árbol");
+        frases.add("¿De qué color son las hojas de los árboles?");
         frases.add("Colores de la bandera de España");
         frases.add("Colores de la bandera de Francia");
         frases.add("Colores de la bandera de Italia");
@@ -75,6 +76,7 @@ public class Frases
         frases.add("Nombra una cadena de comida rápida");
         frases.add("Nombra un signo del zodíaco");
         frases.add("Nombra una constelación");
+        frases.add("Nombra uno de los cinco sentidos");
         frases.add("¿Cuántos ojos tiene una persona?");
         frases.add("Canción de Alejandro Sanz");
         frases.add("Canción de Daddy Yankee");
@@ -113,6 +115,9 @@ public class Frases
         frases.add("Animal que no tiene alas");
         frases.add("Animal que no tiene patas");
         frases.add("Animal que no tiene aleta");
+        frases.add("Persona que no puede ver");
+        frases.add("Persona que no puede oir");
+        frases.add("Persona que no puede hablar");
         frases.add("El mejor amigo de Astérix");
         frases.add("¿Cuántas patas tiene una araña?");
         frases.add("¿Dónde te encuentras si adelantas al segundo en una carrera?");
