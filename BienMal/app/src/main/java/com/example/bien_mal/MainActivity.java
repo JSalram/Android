@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity
                         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                     }
-                    escibeFichero(getApplicationContext());
+                    escribeFichero(getApplicationContext());
                 }
                 else
                 {
@@ -453,7 +453,7 @@ public class MainActivity extends AppCompatActivity
         idCuentaAtras = cuentaAtras.load(this, R.raw.clock, 1);
 
     }
-    private void escibeFichero(Context context)
+    private void escribeFichero(Context context)
     {
         StringBuilder s = new StringBuilder();
         if (!frasesPersonalizadas.isEmpty())
@@ -523,7 +523,7 @@ public class MainActivity extends AppCompatActivity
         if (annadiendo)
         {
             volver();
-            escibeFichero(getApplicationContext());
+            escribeFichero(getApplicationContext());
         }
         else
         {
