@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity
             viaje.setVisibility(View.GONE);
             dineroRecarga.setVisibility(View.VISIBLE);
             viajesRestantes.setVisibility(View.GONE);
-            titulo.setText("Recarga");
+            titulo.setText(R.string.tituloRecarga);
             recargando = true;
         }
     }
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity
     {
         saldoTarjeta = 0;
         saldo.setText(String.valueOf(saldoTarjeta));
-        viajesRestantes.setText("Viajes restantes: 0");
+        viajesRestantes();
         escribeFichero(getApplicationContext());
         return false;
     }

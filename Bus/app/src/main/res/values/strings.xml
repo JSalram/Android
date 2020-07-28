@@ -2,5 +2,6 @@
     <string name="app_name">Bus</string>
     <string name="viaje">Viaje</string>
     <string name="recarga">R+</string>
-    <string name="saldo">Saldo</string>
+    <string name="saldo"><u>Saldo</u></string>
+    <string name="tituloRecarga"><u>Recarga</u></string>
 </resources>
