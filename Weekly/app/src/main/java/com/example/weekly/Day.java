@@ -7,13 +7,13 @@ import java.util.List;
 public class Day
 {
     public Calendar day;
-    private List<Integer> hour;
-    private List<String> tasks;
+    public List<Integer> time;
+    public List<String> tasks;
 
     public Day()
     {
         day = Calendar.getInstance();
-        hour = new ArrayList<>();
+        time = new ArrayList<>();
         tasks = new ArrayList<>();
     }
 
@@ -21,7 +21,7 @@ public class Day
     {
         if (!s.equals("") && n >= 0 && n <= 23)
         {
-            hour.add(n);
+            time.add(n);
             tasks.add(s);
         }
     }
@@ -38,7 +38,6 @@ public class Day
         for (int i = 0; i < words.length; i++)
         {
             date.append(words[i]);
-            System.out.println(words[i]);
             if (i < words.length-1)
             {
                 date.append(" ");

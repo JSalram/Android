@@ -2,11 +2,20 @@ package com.example.weekly;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 public class TaskActivity extends AppCompatActivity
 {
@@ -27,6 +36,10 @@ public class TaskActivity extends AppCompatActivity
         editTask = findViewById(R.id.editTask);
         editTime = findViewById(R.id.editTime);
 
+        if(editTask.requestFocus()) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
+
         addTask.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -38,14 +51,13 @@ public class TaskActivity extends AppCompatActivity
                     task = editTask.getText().toString();
                     time = Integer.parseInt(editTime.getText().toString());
 
+                    MainActivity.addTask(time, task);
+                    MainActivity.escribeFichero(getApplicationContext());
+                    MainActivity.reloadTasks(getApplicationContext());
+
                     TaskActivity.super.onBackPressed();
                 }
             }
         });
-
     }
-
-    public static String getTask() {return task;}
-    public static int getTime() {return time;}
-
 }
