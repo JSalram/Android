@@ -10,7 +10,7 @@ public class WeeklyDays
 
     public WeeklyDays()
     {
-        days = new Day[14];
+        days = new Day[15];
         addDays();
     }
 
