@@ -1,18 +1,11 @@
 package com.example.weekly;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PaintFlagsDrawFilter;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -27,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.sql.Time;
 import java.util.Calendar;
 import java.util.List;
 
@@ -201,26 +195,21 @@ public class MainActivity extends AppCompatActivity
             for (int i = 0; i < weeklyDays.days[posDay].tasks.size(); i++)
             {
                 CheckBox cb = new CheckBox(context);
-                cb.setTextSize(25);
-                cb.setPadding(10, 10, 0, 10);
+                cb.setTextSize(28);
+                cb.setPadding(10, 12, 0, 12);
                 cb.setTextColor(Color.parseColor("#028090"));
                 String newTask = "";
 
-                int time = weeklyDays.days[posDay].time.get(i);
+                Time time = weeklyDays.days[posDay].time.get(i);
                 String task = weeklyDays.days[posDay].tasks.get(i);
 
-                if (time < 10)
-                {
-                    newTask += "0";
-                }
-
-                newTask += time + ":00 - " + task;
+                newTask += time.toString().substring(0, 5) + " - " + task;
                 cb.setText(newTask);
 
                 String arrayDay = weeklyDays.days[posDay].day.getTime().toString().substring(8, 10);
                 String actualDay = Calendar.getInstance().getTime().toString().substring(8, 10);
-                int actualTime = Integer.parseInt(Calendar.getInstance().getTime().toString().substring(11, 13));
-                if (arrayDay.equals(actualDay) && time <= actualTime)
+                Time actualTime = Time.valueOf(Calendar.getInstance().getTime().toString().substring(11, 19));
+                if (arrayDay.equals(actualDay) && time.compareTo(actualTime) < 0)
                 {
                     cb.setChecked(true);
                 }
@@ -244,7 +233,7 @@ public class MainActivity extends AppCompatActivity
     public static void sortTasks()
     {
         List<String> tasks = weeklyDays.days[posDay].tasks;
-        List<Integer> time = weeklyDays.days[posDay].time;
+        List<Time> time = weeklyDays.days[posDay].time;
 
         int i, j, k;
         for (i = 0; i < tasks.size(); i++)
@@ -252,9 +241,9 @@ public class MainActivity extends AppCompatActivity
             for (j = 0; j < tasks.size()-1; j++)
             {
                 k = j + 1;
-                if (time.get(j) > time.get(k))
+                if (time.get(j).compareTo(time.get(k)) > 0)
                 {
-                    Integer timeTemp = time.get(j);
+                    Time timeTemp = time.get(j);
                     String taskTemp = tasks.get(j);
                     time.set(j, time.get(k));
                     tasks.set(j, tasks.get(k));
@@ -272,7 +261,7 @@ public class MainActivity extends AppCompatActivity
             for (int j = 0; j < weeklyDays.days[i].tasks.size(); j++)
             {
                 String day = weeklyDays.days[i].day.getTime().toString().substring(0, 10);
-                int time = weeklyDays.days[i].time.get(j);
+                Time time = weeklyDays.days[i].time.get(j);
                 String task = weeklyDays.days[i].tasks.get(j);
                 s.append(day).append(";");
                 s.append(time).append(";");
@@ -310,7 +299,7 @@ public class MainActivity extends AppCompatActivity
                             String date = weeklyDays.days[i].day.getTime().toString().substring(0, 10);
                             if (strings[0].equals(date))
                             {
-                                int time = Integer.parseInt(strings[1]);
+                                Time time = Time.valueOf(strings[1]);
                                 String task = strings[2];
                                 weeklyDays.days[i].addTask(time, task);
                             }
@@ -324,9 +313,9 @@ public class MainActivity extends AppCompatActivity
         }
         catch (IOException ignored) {}
     }
-    public static void addTask(int n, String s)
+    public static void addTask(Time t, String s)
     {
-        weeklyDays.days[posDay].addTask(n, s);
+        weeklyDays.days[posDay].addTask(t, s);
     }
 
 

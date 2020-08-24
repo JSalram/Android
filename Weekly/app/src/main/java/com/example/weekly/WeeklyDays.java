@@ -1,5 +1,6 @@
 package com.example.weekly;
 
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -23,9 +24,9 @@ public class WeeklyDays
         }
     }
 
-    public void addTasks(int i, int n, String task)
+    public void addTasks(int i, Time time, String task)
     {
-        days[i].addTask(n, task);
+        days[i].addTask(time, task);
     }
 
     public String getDay(int posDay)

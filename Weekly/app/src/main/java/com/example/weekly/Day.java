@@ -1,5 +1,6 @@
 package com.example.weekly;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.List;
 public class Day
 {
     public Calendar day;
-    public List<Integer> time;
+    public List<Time> time;
     public List<String> tasks;
 
     public Day()
@@ -17,15 +18,14 @@ public class Day
         tasks = new ArrayList<>();
     }
 
-    public void addTask(int n, String s)
+    public void addTask(Time t, String s)
     {
-        if (!s.equals("") && n >= 0 && n <= 23)
+        if (!s.equals("") && t.getTime() >= -3600000 && t.getTime() <= 82740000)
         {
-            time.add(n);
+            time.add(t);
             tasks.add(s);
         }
     }
-
 
     public static String capitalizeDate(String s)
     {

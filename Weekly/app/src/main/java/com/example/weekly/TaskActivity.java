@@ -16,11 +16,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.sql.Time;
 
 public class TaskActivity extends AppCompatActivity
 {
     private static String task;
-    private static int time;
+    private static Time time;
 
     private Button addTask;
     private EditText editTask;
@@ -49,7 +50,12 @@ public class TaskActivity extends AppCompatActivity
                     !editTime.getText().toString().equals(""))
                 {
                     task = editTask.getText().toString();
-                    time = Integer.parseInt(editTime.getText().toString());
+                    String strTime = editTime.getText().toString();
+                    if (!strTime.contains(":"))
+                    {
+                        strTime += ":00";
+                    }
+                    time = Time.valueOf(strTime + ":00");
 
                     MainActivity.addTask(time, task);
                     MainActivity.escribeFichero(getApplicationContext());
