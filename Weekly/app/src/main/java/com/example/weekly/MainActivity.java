@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Calendar;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -193,6 +194,7 @@ public class MainActivity extends AppCompatActivity
     public static void reloadTasks(Context context)
     {
         taskList.removeAllViews();
+        sortTasks();
 
         if (weeklyDays.days[posDay].tasks.size() > 0)
         {
@@ -238,15 +240,28 @@ public class MainActivity extends AppCompatActivity
 
             taskList.addView(tv);
         }
-
-        sortTasks();
     }
     public static void sortTasks()
     {
-        for (int i = 0; i < taskList.getChildCount(); i++)
+        List<String> tasks = weeklyDays.days[posDay].tasks;
+        List<Integer> time = weeklyDays.days[posDay].time;
+
+        int i, j, k;
+        for (i = 0; i < tasks.size(); i++)
         {
-            View v = taskList.getChildAt(i);
-            System.out.println();
+            for (j = 0; j < tasks.size()-1; j++)
+            {
+                k = j + 1;
+                if (time.get(j) > time.get(k))
+                {
+                    Integer timeTemp = time.get(j);
+                    String taskTemp = tasks.get(j);
+                    time.set(j, time.get(k));
+                    tasks.set(j, tasks.get(k));
+                    time.set(k, timeTemp);
+                    tasks.set(k, taskTemp);
+                }
+            }
         }
     }
     public static void escribeFichero(Context context)
