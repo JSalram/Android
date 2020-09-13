@@ -2,28 +2,32 @@ package com.example.weekly;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.sql.Time;
 
 public class TaskActivity extends AppCompatActivity
 {
-    private static String task;
-    private static Time time;
+    public static final String EXTRA_BOOLEAN = "com.example.weekly.TaskActivity.EXTRA_BOOLEAN";
+    public static final String EXTRA_BOOLEAN2 = "com.example.weekly.TaskActivity.EXTRA_BOOLEAN2";
+    public static final String EXTRA_NUMBER = "com.example.weekly.TaskActivity.EXTRA_NUMBER";
+    public static final String EXTRA_NUMBER2 = "com.example.weekly.TaskActivity.EXTRA_NUMBER2";
+    public static final String EXTRA_STRING = "com.example.weekly.TaskActivity.EXTRA_STRING";
+    public static final String EXTRA_TIME = "com.example.weekly.TaskActivity.EXTRA_TIME";
 
-    private Button addTask;
+    private boolean adding;
+    private boolean modifying;
+
+    private int I;
+    private int posDay;
+    private String task;
+    private String strTime;
+
     private EditText editTask;
     private EditText editTime;
 
@@ -33,7 +37,13 @@ public class TaskActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task);
 
-        addTask = findViewById(R.id.addTask);
+        Intent intent = getIntent();
+        posDay = intent.getIntExtra(MainActivity.EXTRA_NUMBER, 0);
+        I = intent.getIntExtra(MainActivity.EXTRA_NUMBER2, 0);
+        modifying = intent.getBooleanExtra(MainActivity.EXTRA_BOOLEAN, false);
+        adding = !modifying;
+
+        Button addTask = findViewById(R.id.addTask);
         editTask = findViewById(R.id.editTask);
         editTime = findViewById(R.id.editTime);
 
@@ -50,20 +60,28 @@ public class TaskActivity extends AppCompatActivity
                     !editTime.getText().toString().equals(""))
                 {
                     task = editTask.getText().toString();
-                    String strTime = editTime.getText().toString();
+                    strTime = editTime.getText().toString();
                     if (!strTime.contains(":"))
                     {
                         strTime += ":00";
                     }
-                    time = Time.valueOf(strTime + ":00");
 
-                    MainActivity.addTask(time, task);
-                    MainActivity.escribeFichero(getApplicationContext());
-                    MainActivity.reloadTasks(getApplicationContext());
-
-                    TaskActivity.super.onBackPressed();
+                    launchFirstActivity();
                 }
             }
         });
+    }
+
+    public void launchFirstActivity()
+    {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(EXTRA_BOOLEAN, adding);
+        intent.putExtra(EXTRA_BOOLEAN2, modifying);
+        intent.putExtra(EXTRA_NUMBER, posDay);
+        intent.putExtra(EXTRA_NUMBER2, I);
+        intent.putExtra(EXTRA_STRING, task);
+        intent.putExtra(EXTRA_TIME, strTime);
+        startActivity(intent);
+        finish();
     }
 }

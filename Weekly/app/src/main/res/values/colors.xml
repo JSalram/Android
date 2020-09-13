@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#00A896</color>
-    <color name="colorPrimaryDark">#00A896</color>
-    <color name="colorAccent">#03DAC5</color>
+    <color name="bgColor">#F3F6CD</color>
+    <color name="tabColor">#055D80</color>
+    <color name="addColor">#00A896</color>
+    <color name="arrowColor">#03DAC5</color>
     <color name="todayColor">#05668D</color>
     <color name="dayColor">#028090</color>
+    <color name="tasksColor">#028090</color>
 </resources>

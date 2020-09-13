@@ -1,19 +1,29 @@
 package com.example.weekly;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,14 +34,23 @@ import java.sql.Time;
 import java.util.Calendar;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener
 {
-    public static int posDay;
-    public static WeeklyDays weeklyDays;
+    public static final String EXTRA_NUMBER = "com.example.weekly.MainActivity.EXTRA_NUMBER";
+    public static final String EXTRA_NUMBER2 = "com.example.weekly.MainActivity.EXTRA_NUMBER2";
+    public static final String EXTRA_BOOLEAN = "com.example.weekly.MainActivity.EXTRA_BOOLEAN";
+    private int I;
+    private boolean modifying;
+
+    public NotificationManagerCompat notificationManager;
+
+    public int posDay;
+    public WeeklyDays weeklyDays;
+    public Day actualDay;
 
     private TextView day;
-    public static ScrollView scroller;
-    public static LinearLayout taskList;
+    public ScrollView scroller;
+    public LinearLayout taskList;
     private ImageButton add;
     private ImageButton prev;
     private ImageButton next;
@@ -51,7 +70,19 @@ public class MainActivity extends AppCompatActivity
     //// FUNCTIONS ////
     public void start()
     {
+        Intent intent = getIntent();
+        boolean adding = intent.getBooleanExtra(TaskActivity.EXTRA_BOOLEAN, false);
+        modifying = intent.getBooleanExtra(TaskActivity.EXTRA_BOOLEAN2, false);
+        posDay = intent.getIntExtra(TaskActivity.EXTRA_NUMBER, 0);
+        I = intent.getIntExtra(TaskActivity.EXTRA_NUMBER2, 0);
+        String task = intent.getStringExtra(TaskActivity.EXTRA_STRING);
+        String strTime = intent.getStringExtra(TaskActivity.EXTRA_TIME);
+
+        createNotificationChannel();
+        notificationManager = NotificationManagerCompat.from(this);
+
         weeklyDays = new WeeklyDays();
+        actualDay = weeklyDays.days[posDay];
 
         day = findViewById(R.id.day);
         add = findViewById(R.id.add);
@@ -61,12 +92,12 @@ public class MainActivity extends AppCompatActivity
         taskList = findViewById(R.id.ll);
 
         focusToday();
-
-        posDay = 0;
-
-        leeFichero(getApplicationContext());
+        readFile();
         day.setText(weeklyDays.getDay(posDay));
-        reloadTasks(getApplicationContext());
+
+        if (adding) {addTask(Time.valueOf(strTime + ":00"), task);}
+        if (modifying) {modifyTask(I, task, strTime);}
+        reloadTasks();
     }
     public void buttons()
     {
@@ -86,8 +117,8 @@ public class MainActivity extends AppCompatActivity
             public boolean onLongClick(View view)
             {
                 removeTasks();
-                reloadTasks(getApplicationContext());
-                escribeFichero(getApplicationContext());
+                reloadTasks();
+                writeFile();
                 return true;
             }
         });
@@ -101,9 +132,10 @@ public class MainActivity extends AppCompatActivity
                 if (posDay < weeklyDays.days.length-1)
                 {
                     posDay++;
+                    actualDay = weeklyDays.days[posDay];
                 }
                 focusToday();
-                reloadTasks(getApplicationContext());
+                reloadTasks();
                 day.setText(weeklyDays.getDay(posDay));
             }
         });
@@ -114,9 +146,10 @@ public class MainActivity extends AppCompatActivity
             public boolean onLongClick(View view)
             {
                 posDay = weeklyDays.days.length-1;
+                actualDay = weeklyDays.days[posDay];
                 focusToday();
                 day.setText(weeklyDays.getDay(posDay));
-                reloadTasks(getApplicationContext());
+                reloadTasks();
                 return true;
             }
         });
@@ -130,9 +163,10 @@ public class MainActivity extends AppCompatActivity
                 if (posDay > 0)
                 {
                     posDay--;
+                    actualDay = weeklyDays.days[posDay];
                 }
                 focusToday();
-                reloadTasks(getApplicationContext());
+                reloadTasks();
                 day.setText(weeklyDays.getDay(posDay));
             }
         });
@@ -143,97 +177,96 @@ public class MainActivity extends AppCompatActivity
             public boolean onLongClick(View view)
             {
                 posDay = 0;
+                actualDay = weeklyDays.days[posDay];
                 focusToday();
                 day.setText(weeklyDays.getDay(posDay));
-                reloadTasks(getApplicationContext());
+                reloadTasks();
                 return true;
             }
         });
-    }
-    public void launchSecondActivity()
-    {
-        Intent intent = new Intent(this, TaskActivity.class);
-        startActivity(intent);
-    }
-    public void removeTasks()
-    {
-        for (int i = 0; i < taskList.getChildCount(); i++)
-        {
-            View v = taskList.getChildAt(i);
-            if (((CheckBox) v).isChecked())
-            {
-                taskList.removeViewAt(i);
-                weeklyDays.days[posDay].tasks.remove(i);
-                weeklyDays.days[posDay].time.remove(i);
-                i--;
-            }
-        }
     }
     public void focusToday()
     {
         if (posDay == 0)
         {
-            day.setTypeface(null, Typeface.BOLD);
-            day.setBackground(getDrawable(R.drawable.rounded_today));
+            day.setBackgroundColor(getResources().getColor(R.color.todayColor));
         }
         else
         {
-            day.setTypeface(null, Typeface.NORMAL);
-            day.setBackground(getDrawable(R.drawable.rounded_day));
+            day.setBackgroundColor(getResources().getColor(R.color.dayColor));
         }
     }
 
-
-    //// STATICS ////
-    public static void reloadTasks(Context context)
+    //// TASKER ////
+    public void reloadTasks()
     {
+        boolean notified = false;
+        Typeface tasksFont = ResourcesCompat.getFont(this, R.font.cabin);
         taskList.removeAllViews();
         sortTasks();
 
-        if (weeklyDays.days[posDay].tasks.size() > 0)
+        if (actualDay.tasks.size() > 0)
         {
-            for (int i = 0; i < weeklyDays.days[posDay].tasks.size(); i++)
+            for (int i = 0; i < actualDay.tasks.size(); i++)
             {
-                CheckBox cb = new CheckBox(context);
-                cb.setTextSize(28);
-                cb.setPadding(10, 12, 0, 12);
+                final CheckBox cb = new CheckBox(this);
+                cb.setTypeface(tasksFont);
+                cb.setTextSize(30);
+                cb.setPadding(10, 5, 0, 12);
                 cb.setTextColor(Color.parseColor("#028090"));
                 String newTask = "";
 
-                Time time = weeklyDays.days[posDay].time.get(i);
-                String task = weeklyDays.days[posDay].tasks.get(i);
+                Time time = actualDay.time.get(i);
+                String task = actualDay.tasks.get(i);
 
                 newTask += time.toString().substring(0, 5) + " - " + task;
                 cb.setText(newTask);
 
-                String arrayDay = weeklyDays.days[posDay].day.getTime().toString().substring(8, 10);
-                String actualDay = Calendar.getInstance().getTime().toString().substring(8, 10);
                 Time actualTime = Time.valueOf(Calendar.getInstance().getTime().toString().substring(11, 19));
-                if (arrayDay.equals(actualDay) && time.compareTo(actualTime) < 0)
+                if (posDay == 0 && time.compareTo(actualTime) < 0)
                 {
                     cb.setChecked(true);
                 }
+                else if (posDay == 0 && !notified)
+                {
+                    NotificationCompat.Builder builder = createNotification(newTask, this);
+                    notificationManager.notify(100, builder.build());
+                    notified = true;
+                }
+
+                final int finalI = i;
+                cb.setOnLongClickListener(new View.OnLongClickListener()
+                {
+                    @Override
+                    public boolean onLongClick(View view)
+                    {
+                        I = finalI;
+                        showPopup(cb);
+                        return true;
+                    }
+                });
 
                 taskList.addView(cb);
             }
         }
         else
         {
-            TextView tv = new TextView(context);
-            tv.setText("No tienes recordatorios aún.");
+            TextView tv = new TextView(this);
+            tv.setTypeface(tasksFont);
+            tv.setText(R.string.noTasks);
             tv.setGravity(Gravity.CENTER);
-            tv.setTextSize(25);
+            tv.setTextSize(35);
             tv.setTextColor(Color.parseColor("#028090"));
 
-            tv.setPadding(0, 300, 0, 0);
+            tv.setPadding(0, 250, 0, 0);
 
             taskList.addView(tv);
         }
     }
-    public static void sortTasks()
+    public void sortTasks()
     {
-        List<String> tasks = weeklyDays.days[posDay].tasks;
-        List<Time> time = weeklyDays.days[posDay].time;
+        List<String> tasks = actualDay.tasks;
+        List<Time> time = actualDay.time;
 
         int i, j, k;
         for (i = 0; i < tasks.size(); i++)
@@ -253,7 +286,77 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-    public static void escribeFichero(Context context)
+    public void addTask(Time t, String s)
+    {
+        actualDay.addTask(t, s);
+        writeFile();
+    }
+    public void removeTasks()
+    {
+        for (int i = 0; i < taskList.getChildCount(); i++)
+        {
+            View v = taskList.getChildAt(i);
+            if (((CheckBox) v).isChecked())
+            {
+                taskList.removeViewAt(i);
+                actualDay.tasks.remove(i);
+                actualDay.time.remove(i);
+                i--;
+            }
+        }
+    }
+    public void removeTask(int i)
+    {
+        actualDay.tasks.remove(i);
+        actualDay.time.remove(i);
+        reloadTasks();
+        writeFile();
+
+        Toast t = Toast.makeText(this, "Recordatorio eliminado", Toast.LENGTH_SHORT);
+        t.setGravity(Gravity.CENTER, 0, taskList.getWidth()/2);
+        t.show();
+    }
+    public void modifyTask(int i, String task, String strTime)
+    {
+        System.out.println(i);
+        actualDay.tasks.set(i, task);
+        actualDay.time.set(i, Time.valueOf(strTime + ":00"));
+        modifying = false;
+        writeFile();
+    }
+
+    //// MENU ////
+    public void showPopup(View v)
+    {
+        PopupMenu popup = new PopupMenu(this, v);
+        popup.setOnMenuItemClickListener(this);
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.task_menu, popup.getMenu());
+        popup.show();
+    }
+    @Override
+    public boolean onMenuItemClick(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
+            case R.id.modify:
+            {
+                modifying = true;
+                launchSecondActivity();
+                return true;
+            }
+            case R.id.remove:
+            {
+                removeTask(I);
+                return true;
+            }
+            default:
+                return false;
+        }
+    }
+
+    //// FILES ////
+    public void writeFile()
     {
         StringBuilder s = new StringBuilder();
         for (int i = 0; i < weeklyDays.days.length; i++)
@@ -271,17 +374,17 @@ public class MainActivity extends AppCompatActivity
 
         try
         {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("tasks.txt", Context.MODE_PRIVATE));
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(this.openFileOutput("tasks.txt", Context.MODE_PRIVATE));
             outputStreamWriter.write(s.toString());
             outputStreamWriter.close();
         }
         catch (IOException ignored) {}
     }
-    private void leeFichero(Context context)
+    private void readFile()
     {
         try
         {
-            InputStream inputStream = context.openFileInput("tasks.txt");
+            InputStream inputStream = this.openFileInput("tasks.txt");
 
             if ( inputStream != null )
             {
@@ -313,36 +416,40 @@ public class MainActivity extends AppCompatActivity
         }
         catch (IOException ignored) {}
     }
-    public static void addTask(Time t, String s)
-    {
-        weeklyDays.days[posDay].addTask(t, s);
-    }
-
 
     //// NOTIFICATIONS ////
-    /*
-    public void notification()
+    public NotificationCompat.Builder createNotification(String taskNot, Context context)
     {
-        new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("Notificación")
-                .setContentText("Esta es una notificación de prueba")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        return
+        new NotificationCompat.Builder(context, "weeklyID")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("Próxima tarea")
+                .setContentText(taskNot)
+                .setPriority(NotificationCompat.PRIORITY_HIGH);
     }
-    private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    private void createNotificationChannel()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
             CharSequence name = getString(R.string.channel_name);
             String description = getString(R.string.channel_description);
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            NotificationChannel channel = new NotificationChannel("weeklyID", name, importance);
             channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
+
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
     }
-    */
+
+    //// ACTIVITIES ////
+    public void launchSecondActivity()
+    {
+        Intent intent = new Intent(this, TaskActivity.class);
+        intent.putExtra(EXTRA_NUMBER, posDay);
+        intent.putExtra(EXTRA_NUMBER2, I);
+        intent.putExtra(EXTRA_BOOLEAN, modifying);
+        startActivity(intent);
+        finish();
+    }
 }
