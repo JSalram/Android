@@ -4,6 +4,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
@@ -223,6 +224,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 cb.setTextSize(30);
                 cb.setPadding(10, 5, 0, 12);
                 cb.setTextColor(Colors.tasksColor);
+                cb.setButtonTintList(ColorStateList.valueOf(Colors.tasksColor));
                 String newTask = "";
 
                 Time time = actualDay.time.get(i);
