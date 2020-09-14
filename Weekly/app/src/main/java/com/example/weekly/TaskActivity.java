@@ -9,8 +9,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 
-import java.sql.Time;
-
 public class TaskActivity extends AppCompatActivity
 {
     public static final String EXTRA_BOOLEAN = "com.example.weekly.TaskActivity.EXTRA_BOOLEAN";
@@ -22,6 +20,8 @@ public class TaskActivity extends AppCompatActivity
 
     private boolean adding;
     private boolean modifying;
+    private String modTask;
+    private String modTime;
 
     private int I;
     private int posDay;
@@ -38,9 +38,11 @@ public class TaskActivity extends AppCompatActivity
         setContentView(R.layout.activity_task);
 
         Intent intent = getIntent();
-        posDay = intent.getIntExtra(MainActivity.EXTRA_NUMBER, 0);
-        I = intent.getIntExtra(MainActivity.EXTRA_NUMBER2, 0);
-        modifying = intent.getBooleanExtra(MainActivity.EXTRA_BOOLEAN, false);
+        posDay = intent.getIntExtra(MainActivity.POS_DAY, 0);
+        I = intent.getIntExtra(MainActivity.MOD_I, 0);
+        modifying = intent.getBooleanExtra(MainActivity.MOD, false);
+        modTask = intent.getStringExtra(MainActivity.MOD_TASK);
+        modTime = intent.getStringExtra(MainActivity.MOD_TIME);
         adding = !modifying;
 
         Button addTask = findViewById(R.id.addTask);
@@ -49,6 +51,12 @@ public class TaskActivity extends AppCompatActivity
 
         if(editTask.requestFocus()) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
+
+        if (modifying)
+        {
+            editTask.setText(modTask);
+            editTime.setText(modTime.substring(0, 5));
         }
 
         addTask.setOnClickListener(new View.OnClickListener()
@@ -72,9 +80,23 @@ public class TaskActivity extends AppCompatActivity
         });
     }
 
+    @Override
+    public void onBackPressed()
+    {
+        modifying = false;
+        adding = false;
+
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(EXTRA_BOOLEAN, adding);
+        intent.putExtra(EXTRA_BOOLEAN2, modifying);
+        intent.putExtra(EXTRA_NUMBER, posDay);
+        startActivity(intent);
+    }
+
     public void launchFirstActivity()
     {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(EXTRA_BOOLEAN, adding);
         intent.putExtra(EXTRA_BOOLEAN2, modifying);
         intent.putExtra(EXTRA_NUMBER, posDay);

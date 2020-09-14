@@ -2,9 +2,9 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/tabColor</item>
-        <item name="colorPrimaryDark">@color/tabColor</item>
-        <item name="colorAccent">@color/todayColor</item>
+        <item name="colorPrimary">#055D80</item>
+        <item name="colorPrimaryDark">#055D80</item>
+        <item name="colorAccent">#05668D</item>
     </style>
 
 </resources>

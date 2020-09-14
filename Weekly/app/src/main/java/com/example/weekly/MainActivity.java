@@ -4,8 +4,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -16,11 +16,11 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.res.ResourcesCompat;
@@ -36,21 +36,25 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener
 {
-    public static final String EXTRA_NUMBER = "com.example.weekly.MainActivity.EXTRA_NUMBER";
-    public static final String EXTRA_NUMBER2 = "com.example.weekly.MainActivity.EXTRA_NUMBER2";
-    public static final String EXTRA_BOOLEAN = "com.example.weekly.MainActivity.EXTRA_BOOLEAN";
+    public static final String MOD_TASK = "MOD_TASK";
+    public static final String MOD_TIME = "MOD_TIME";
+    public static final String POS_DAY = "POS_DAY";
+    public static final String MOD_I = "MOD_I";
+    public static final String MOD = "MOD";
     private int I;
     private boolean modifying;
+    private String task;
+    private String time;
 
-    public NotificationManagerCompat notificationManager;
+    private NotificationManagerCompat notificationManager;
 
-    public int posDay;
-    public WeeklyDays weeklyDays;
-    public Day actualDay;
+    private int posDay;
+    private WeeklyDays weeklyDays;
+    private Day actualDay;
 
+    private ConstraintLayout background;
     private TextView day;
-    public ScrollView scroller;
-    public LinearLayout taskList;
+    private LinearLayout taskList;
     private ImageButton add;
     private ImageButton prev;
     private ImageButton next;
@@ -84,14 +88,14 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         weeklyDays = new WeeklyDays();
         actualDay = weeklyDays.days[posDay];
 
+        background = findViewById(R.id.ConstraintLayout);
         day = findViewById(R.id.day);
         add = findViewById(R.id.add);
         prev = findViewById(R.id.prev);
         next = findViewById(R.id.next);
-        scroller = findViewById(R.id.tasks);
         taskList = findViewById(R.id.ll);
 
-        focusToday();
+        colorize();
         readFile();
         day.setText(weeklyDays.getDay(posDay));
 
@@ -134,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                     posDay++;
                     actualDay = weeklyDays.days[posDay];
                 }
-                focusToday();
+                colorize();
                 reloadTasks();
                 day.setText(weeklyDays.getDay(posDay));
             }
@@ -147,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             {
                 posDay = weeklyDays.days.length-1;
                 actualDay = weeklyDays.days[posDay];
-                focusToday();
+                colorize();
                 day.setText(weeklyDays.getDay(posDay));
                 reloadTasks();
                 return true;
@@ -165,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                     posDay--;
                     actualDay = weeklyDays.days[posDay];
                 }
-                focusToday();
+                colorize();
                 reloadTasks();
                 day.setText(weeklyDays.getDay(posDay));
             }
@@ -178,27 +182,32 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             {
                 posDay = 0;
                 actualDay = weeklyDays.days[posDay];
-                focusToday();
+                colorize();
                 day.setText(weeklyDays.getDay(posDay));
                 reloadTasks();
                 return true;
             }
         });
     }
-    public void focusToday()
+    private void colorize()
     {
+        background.setBackgroundColor(Colors.bgColor);
+        add.getBackground().setTint(Colors.addColor);
+        prev.getBackground().setTint(Colors.arrowColor);
+        next.getBackground().setTint(Colors.arrowColor);
+
         if (posDay == 0)
         {
-            day.setBackgroundColor(getResources().getColor(R.color.todayColor));
+            day.setBackgroundColor(Colors.todayColor);
         }
         else
         {
-            day.setBackgroundColor(getResources().getColor(R.color.dayColor));
+            day.setBackgroundColor(Colors.dayColor);
         }
     }
 
     //// TASKER ////
-    public void reloadTasks()
+    private void reloadTasks()
     {
         boolean notified = false;
         Typeface tasksFont = ResourcesCompat.getFont(this, R.font.cabin);
@@ -213,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 cb.setTypeface(tasksFont);
                 cb.setTextSize(30);
                 cb.setPadding(10, 5, 0, 12);
-                cb.setTextColor(Color.parseColor("#028090"));
+                cb.setTextColor(Colors.tasksColor);
                 String newTask = "";
 
                 Time time = actualDay.time.get(i);
@@ -256,14 +265,14 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             tv.setText(R.string.noTasks);
             tv.setGravity(Gravity.CENTER);
             tv.setTextSize(35);
-            tv.setTextColor(Color.parseColor("#028090"));
+            tv.setTextColor(Colors.tasksColor);
 
             tv.setPadding(0, 250, 0, 0);
 
             taskList.addView(tv);
         }
     }
-    public void sortTasks()
+    private void sortTasks()
     {
         List<String> tasks = actualDay.tasks;
         List<Time> time = actualDay.time;
@@ -286,12 +295,12 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             }
         }
     }
-    public void addTask(Time t, String s)
+    private void addTask(Time t, String s)
     {
         actualDay.addTask(t, s);
         writeFile();
     }
-    public void removeTasks()
+    private void removeTasks()
     {
         for (int i = 0; i < taskList.getChildCount(); i++)
         {
@@ -305,7 +314,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             }
         }
     }
-    public void removeTask(int i)
+    private void removeTask(int i)
     {
         actualDay.tasks.remove(i);
         actualDay.time.remove(i);
@@ -316,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         t.setGravity(Gravity.CENTER, 0, taskList.getWidth()/2);
         t.show();
     }
-    public void modifyTask(int i, String task, String strTime)
+    private void modifyTask(int i, String task, String strTime)
     {
         System.out.println(i);
         actualDay.tasks.set(i, task);
@@ -342,6 +351,8 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             case R.id.modify:
             {
                 modifying = true;
+                task = actualDay.tasks.get(I);
+                time = String.valueOf(actualDay.time.get(I));
                 launchSecondActivity();
                 return true;
             }
@@ -356,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     }
 
     //// FILES ////
-    public void writeFile()
+    private void writeFile()
     {
         StringBuilder s = new StringBuilder();
         for (int i = 0; i < weeklyDays.days.length; i++)
@@ -418,13 +429,15 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     }
 
     //// NOTIFICATIONS ////
-    public NotificationCompat.Builder createNotification(String taskNot, Context context)
+    private NotificationCompat.Builder createNotification(String taskNot, Context context)
     {
         return
         new NotificationCompat.Builder(context, "weeklyID")
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Próxima tarea")
                 .setContentText(taskNot)
+                .setSound(Uri.parse("android.resource://"
+                        + context.getPackageName() + "/" + R.raw.sound))
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
     }
     private void createNotificationChannel()
@@ -443,13 +456,14 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     }
 
     //// ACTIVITIES ////
-    public void launchSecondActivity()
+    private void launchSecondActivity()
     {
         Intent intent = new Intent(this, TaskActivity.class);
-        intent.putExtra(EXTRA_NUMBER, posDay);
-        intent.putExtra(EXTRA_NUMBER2, I);
-        intent.putExtra(EXTRA_BOOLEAN, modifying);
+        intent.putExtra(POS_DAY, posDay);
+        intent.putExtra(MOD_I, I);
+        intent.putExtra(MOD, modifying);
+        intent.putExtra(MOD_TASK, task);
+        intent.putExtra(MOD_TIME, time);
         startActivity(intent);
-        finish();
     }
 }
