@@ -1,6 +1,7 @@
 package com.example.weekly;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class TaskActivity extends AppCompatActivity
 {
@@ -20,8 +22,6 @@ public class TaskActivity extends AppCompatActivity
 
     private boolean adding;
     private boolean modifying;
-    private String modTask;
-    private String modTime;
 
     private int I;
     private int posDay;
@@ -30,6 +30,7 @@ public class TaskActivity extends AppCompatActivity
 
     private EditText editTask;
     private EditText editTime;
+    private Button addTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -37,27 +38,7 @@ public class TaskActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task);
 
-        Intent intent = getIntent();
-        posDay = intent.getIntExtra(MainActivity.POS_DAY, 0);
-        I = intent.getIntExtra(MainActivity.MOD_I, 0);
-        modifying = intent.getBooleanExtra(MainActivity.MOD, false);
-        modTask = intent.getStringExtra(MainActivity.MOD_TASK);
-        modTime = intent.getStringExtra(MainActivity.MOD_TIME);
-        adding = !modifying;
-
-        Button addTask = findViewById(R.id.addTask);
-        editTask = findViewById(R.id.editTask);
-        editTime = findViewById(R.id.editTime);
-
-        if(editTask.requestFocus()) {
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-        }
-
-        if (modifying)
-        {
-            editTask.setText(modTask);
-            editTime.setText(modTime.substring(0, 5));
-        }
+        start();
 
         addTask.setOnClickListener(new View.OnClickListener()
         {
@@ -87,12 +68,57 @@ public class TaskActivity extends AppCompatActivity
         adding = false;
 
         Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(EXTRA_BOOLEAN, adding);
         intent.putExtra(EXTRA_BOOLEAN2, modifying);
         intent.putExtra(EXTRA_NUMBER, posDay);
         startActivity(intent);
+        finish();
     }
 
+
+    //// FUNCTIONS ////
+    private void start()
+    {
+        Intent intent = getIntent();
+        posDay = intent.getIntExtra(MainActivity.POS_DAY, 0);
+        I = intent.getIntExtra(MainActivity.MOD_I, 0);
+        modifying = intent.getBooleanExtra(MainActivity.MOD, false);
+        String modTask = intent.getStringExtra(MainActivity.MOD_TASK);
+        String modTime = intent.getStringExtra(MainActivity.MOD_TIME);
+        adding = !modifying;
+
+        addTask = findViewById(R.id.addTask);
+        editTask = findViewById(R.id.editTask);
+        editTime = findViewById(R.id.editTime);
+
+        colorize();
+
+        if(editTask.requestFocus()) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
+
+        if (modifying)
+        {
+            editTask.setText(modTask);
+            editTime.setText(modTime.substring(0, 5));
+        }
+    }
+    private void colorize()
+    {
+        ConstraintLayout background = findViewById(R.id.TaskActivityLayout);
+        TextView taskView = findViewById(R.id.taskTitle);
+        TextView timeView = findViewById(R.id.timeTitle);
+
+        background.setBackgroundColor(Colors.bgColor);
+        taskView.setTextColor(Colors.dayColor);
+        timeView.setTextColor(Colors.dayColor);
+        editTask.setTextColor(Colors.tasksColor);
+        editTask.getBackground().setTint(Colors.dayColor);
+        editTime.setTextColor(Colors.tasksColor);
+        editTime.getBackground().setTint(Colors.dayColor);
+        addTask.getBackground().setTint(Colors.addColor);
+    }
     public void launchFirstActivity()
     {
         Intent intent = new Intent(this, MainActivity.class);
