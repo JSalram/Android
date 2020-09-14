@@ -30,7 +30,8 @@ public class Colors
     public static void darkMode()
     {
         Time actualTime = Time.valueOf(Calendar.getInstance().getTime().toString().substring(11, 19));
-        if (actualTime.compareTo(Time.valueOf("21:00:00")) > 0)
+        if (actualTime.compareTo(Time.valueOf("22:00:00")) > 0 ||
+            actualTime.compareTo(Time.valueOf("07:00:00")) < 0)
         {
             arrowColor = Color.parseColor("#00665C");
             addColor = Color.parseColor("#01795F");
