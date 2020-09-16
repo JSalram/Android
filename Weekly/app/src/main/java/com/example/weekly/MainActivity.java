@@ -2,6 +2,7 @@ package com.example.weekly;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -37,6 +38,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener
 {
+    // Activity
     public static final String MOD_TASK = "MOD_TASK";
     public static final String MOD_TIME = "MOD_TIME";
     public static final String POS_DAY = "POS_DAY";
@@ -47,12 +49,16 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     private String task;
     private String time;
 
+    // Notification
     private NotificationManagerCompat notificationManager;
+    private String taskNot;
 
+    // Variables
     private int posDay;
     private WeeklyDays weeklyDays;
     private Day actualDay;
 
+    // Layout
     private ConstraintLayout background;
     private TextView day;
     private LinearLayout taskList;
@@ -76,12 +82,12 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     public void start()
     {
         Intent intent = getIntent();
-        boolean adding = intent.getBooleanExtra(TaskActivity.EXTRA_BOOLEAN, false);
-        modifying = intent.getBooleanExtra(TaskActivity.EXTRA_BOOLEAN2, false);
-        posDay = intent.getIntExtra(TaskActivity.EXTRA_NUMBER, 0);
-        I = intent.getIntExtra(TaskActivity.EXTRA_NUMBER2, 0);
-        String task = intent.getStringExtra(TaskActivity.EXTRA_STRING);
-        String strTime = intent.getStringExtra(TaskActivity.EXTRA_TIME);
+        boolean adding = intent.getBooleanExtra(TaskActivity.ADD, false);
+        modifying = intent.getBooleanExtra(TaskActivity.MOD, false);
+        posDay = intent.getIntExtra(TaskActivity.POS_DAY, 0);
+        I = intent.getIntExtra(TaskActivity.MOD_I, 0);
+        String task = intent.getStringExtra(TaskActivity.TASK);
+        String strTime = intent.getStringExtra(TaskActivity.TIME);
 
         createNotificationChannel();
         notificationManager = NotificationManagerCompat.from(this);
@@ -103,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         if (adding) {addTask(Time.valueOf(strTime + ":00"), task);}
         if (modifying) {modifyTask(I, task, strTime);}
         reloadTasks();
+        notifyTask();
     }
     public void buttons()
     {
@@ -210,7 +217,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     //// TASKER ////
     private void reloadTasks()
     {
-        boolean notified = false;
         Typeface tasksFont = ResourcesCompat.getFont(this, R.font.cabin);
         taskList.removeAllViews();
         sortTasks();
@@ -237,12 +243,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 if (posDay == 0 && time.compareTo(actualTime) < 0)
                 {
                     cb.setChecked(true);
-                }
-                else if (posDay == 0 && !notified)
-                {
-                    NotificationCompat.Builder builder = createNotification(newTask, this);
-                    notificationManager.notify(100, builder.build());
-                    notified = true;
                 }
 
                 final int finalI = i;
@@ -329,7 +329,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     }
     private void modifyTask(int i, String task, String strTime)
     {
-        System.out.println(i);
         actualDay.tasks.set(i, task);
         actualDay.time.set(i, Time.valueOf(strTime + ":00"));
         modifying = false;
@@ -372,6 +371,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     private void writeFile()
     {
         StringBuilder s = new StringBuilder();
+        s.append(taskNot).append(System.lineSeparator());
         for (int i = 0; i < weeklyDays.days.length; i++)
         {
             for (int j = 0; j < weeklyDays.days[i].tasks.size(); j++)
@@ -387,7 +387,8 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
         try
         {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(this.openFileOutput("tasks.txt", Context.MODE_PRIVATE));
+            OutputStreamWriter outputStreamWriter =
+                    new OutputStreamWriter(this.openFileOutput("tasks.txt", Context.MODE_PRIVATE));
             outputStreamWriter.write(s.toString());
             outputStreamWriter.close();
         }
@@ -399,13 +400,13 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         {
             InputStream inputStream = this.openFileInput("tasks.txt");
 
-            if ( inputStream != null )
+            if (inputStream != null)
             {
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                 String receiveString;
 
-                while ( (receiveString = bufferedReader.readLine()) != null )
+                while ((receiveString = bufferedReader.readLine()) != null)
                 {
                     if (!receiveString.equals("") && receiveString.contains(";"))
                     {
@@ -421,6 +422,10 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                             }
                         }
                     }
+                    else
+                    {
+                        taskNot = receiveString;
+                    }
                 }
 
                 bufferedReader.close();
@@ -431,16 +436,22 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     }
 
     //// NOTIFICATIONS ////
-    private NotificationCompat.Builder createNotification(String taskNot, Context context)
+    private NotificationCompat.Builder createNotification()
     {
-        return
-        new NotificationCompat.Builder(context, "weeklyID")
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "weeklyID")
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Próxima tarea")
                 .setContentText(taskNot)
                 .setSound(Uri.parse("android.resource://"
-                        + context.getPackageName() + "/" + R.raw.sound))
+                        + this.getPackageName() + "/" + R.raw.sound))
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+
+        builder.setContentIntent(contentIntent);
+
+        return builder;
     }
     private void createNotificationChannel()
     {
@@ -454,6 +465,28 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
+        }
+    }
+    private void notifyTask()
+    {
+        if (posDay == 0)
+        {
+            for (int i = 0; i < taskList.getChildCount(); i++)
+            {
+                View v = taskList.getChildAt(i);
+                if (!((CheckBox) v).isChecked())
+                {
+                    String newTask = ((CheckBox) v).getText().toString();
+                    if (!newTask.equals(taskNot))
+                    {
+                        taskNot = newTask;
+                        NotificationCompat.Builder builder = createNotification();
+                        notificationManager.notify(100, builder.build());
+                        writeFile();
+                    }
+                    break;
+                }
+            }
         }
     }
 

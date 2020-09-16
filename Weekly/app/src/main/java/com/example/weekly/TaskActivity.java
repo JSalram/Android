@@ -13,21 +13,23 @@ import android.widget.TextView;
 
 public class TaskActivity extends AppCompatActivity
 {
-    public static final String EXTRA_BOOLEAN = "com.example.weekly.TaskActivity.EXTRA_BOOLEAN";
-    public static final String EXTRA_BOOLEAN2 = "com.example.weekly.TaskActivity.EXTRA_BOOLEAN2";
-    public static final String EXTRA_NUMBER = "com.example.weekly.TaskActivity.EXTRA_NUMBER";
-    public static final String EXTRA_NUMBER2 = "com.example.weekly.TaskActivity.EXTRA_NUMBER2";
-    public static final String EXTRA_STRING = "com.example.weekly.TaskActivity.EXTRA_STRING";
-    public static final String EXTRA_TIME = "com.example.weekly.TaskActivity.EXTRA_TIME";
-
+    // Activity
+    public static final String ADD = "ADD";
+    public static final String MOD = "MOD";
+    public static final String POS_DAY = "POS_DAY";
+    public static final String MOD_I = "MOD_I";
+    public static final String TASK = "TASK";
+    public static final String TIME = "TIME";
     private boolean adding;
     private boolean modifying;
 
+    // Variables
     private int I;
     private int posDay;
     private String task;
     private String strTime;
 
+    // Layout
     private EditText editTask;
     private EditText editTime;
     private Button addTask;
@@ -69,9 +71,9 @@ public class TaskActivity extends AppCompatActivity
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra(EXTRA_BOOLEAN, adding);
-        intent.putExtra(EXTRA_BOOLEAN2, modifying);
-        intent.putExtra(EXTRA_NUMBER, posDay);
+        intent.putExtra(ADD, adding);
+        intent.putExtra(MOD, modifying);
+        intent.putExtra(POS_DAY, posDay);
         startActivity(intent);
         finish();
     }
@@ -100,8 +102,11 @@ public class TaskActivity extends AppCompatActivity
 
         if (modifying)
         {
-            editTask.setText(modTask);
-            editTime.setText(modTime.substring(0, 5));
+            if (modTime != null)
+            {
+                editTask.setText(modTask);
+                editTime.setText(modTime.substring(0, 5));
+            }
         }
     }
     private void colorize()
@@ -123,12 +128,12 @@ public class TaskActivity extends AppCompatActivity
     {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra(EXTRA_BOOLEAN, adding);
-        intent.putExtra(EXTRA_BOOLEAN2, modifying);
-        intent.putExtra(EXTRA_NUMBER, posDay);
-        intent.putExtra(EXTRA_NUMBER2, I);
-        intent.putExtra(EXTRA_STRING, task);
-        intent.putExtra(EXTRA_TIME, strTime);
+        intent.putExtra(ADD, adding);
+        intent.putExtra(MOD, modifying);
+        intent.putExtra(POS_DAY, posDay);
+        intent.putExtra(MOD_I, I);
+        intent.putExtra(TASK, task);
+        intent.putExtra(TIME, strTime);
         startActivity(intent);
         finish();
     }
