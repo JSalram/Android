@@ -201,8 +201,11 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     {
         background.setBackgroundColor(Colors.bgColor);
         add.getBackground().setTint(Colors.addColor);
+//        add.setBackgroundColor(Colors.addColor);
         prev.getBackground().setTint(Colors.arrowColor);
+//        prev.setBackgroundColor(Colors.arrowColor);
         next.getBackground().setTint(Colors.arrowColor);
+//        next.setBackgroundColor(Colors.arrowColor);
 
         if (posDay == 0)
         {
@@ -227,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             {
                 final CheckBox cb = new CheckBox(this);
                 cb.setTypeface(tasksFont);
-                cb.setTextSize(30);
+                cb.setTextSize(35);
                 cb.setPadding(10, 5, 0, 12);
                 cb.setTextColor(Colors.tasksColor);
                 cb.setButtonTintList(ColorStateList.valueOf(Colors.tasksColor));
@@ -266,10 +269,10 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             tv.setTypeface(tasksFont);
             tv.setText(R.string.noTasks);
             tv.setGravity(Gravity.CENTER);
-            tv.setTextSize(35);
+            tv.setTextSize(40);
             tv.setTextColor(Colors.tasksColor);
 
-            tv.setPadding(0, 250, 0, 0);
+            tv.setPadding(0, 600, 0, 0);
 
             taskList.addView(tv);
         }
@@ -469,17 +472,20 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     }
     private void notifyTask()
     {
-        if (posDay == 0)
+        if (posDay == 0 && actualDay.tasks.size() > 0)
         {
             for (int i = 0; i < taskList.getChildCount(); i++)
             {
                 View v = taskList.getChildAt(i);
                 if (!((CheckBox) v).isChecked())
                 {
-                    String newTask = ((CheckBox) v).getText().toString();
-                    if (!newTask.equals(taskNot))
+                    String savedTask = ((CheckBox) v).getText().toString();
+                    Time savedTime = Time.valueOf(savedTask.substring(0, 5) + ":00");
+                    savedTime.setHours(savedTime.getHours()-1);
+                    Time now = Time.valueOf(Calendar.getInstance().getTime().toString().substring(11, 19));
+                    if (!savedTask.equals(taskNot) && now.compareTo(savedTime) >= 0)
                     {
-                        taskNot = newTask;
+                        taskNot = savedTask;
                         NotificationCompat.Builder builder = createNotification();
                         notificationManager.notify(100, builder.build());
                         writeFile();
