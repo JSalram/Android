@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
@@ -246,6 +247,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 if (posDay == 0 && time.compareTo(actualTime) < 0)
                 {
                     cb.setChecked(true);
+                    cb.setPaintFlags(cb.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                 }
 
                 final int finalI = i;
@@ -481,7 +483,8 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 {
                     String savedTask = ((CheckBox) v).getText().toString();
                     Time savedTime = Time.valueOf(savedTask.substring(0, 5) + ":00");
-                    savedTime.setHours(savedTime.getHours()-1);
+                    savedTime.setHours(savedTime.getHours()-2);
+                    savedTime.setMinutes(savedTime.getMinutes()-30);
                     Time now = Time.valueOf(Calendar.getInstance().getTime().toString().substring(11, 19));
                     if (!savedTask.equals(taskNot) && now.compareTo(savedTime) >= 0)
                     {
